@@ -296,7 +296,7 @@ impl Credentials {
         #[cfg(feature = "http-credentials")]
         let credentials = credentials
             .or_else(|_| Credentials::from_sts_env("aws-creds"))
-            .or_else(|_| Credentials::from_container_metadata())
+            .or_else(|_| Credentials::from_container_credentials_provider())
             .or_else(|_| Credentials::from_instance_metadata_v2(false))
             .or_else(|_| Credentials::from_instance_metadata(false));
 
@@ -328,8 +328,7 @@ impl Credentials {
     }
 
     #[cfg(feature = "http-credentials")]
-    pub fn from_container_metadata() -> Result<Credentials, CredentialsError> {
-        // TODO: Think about https://github.com/durch/rust-s3/issues/362
+    pub fn from_container_credentials_provider() -> Result<Credentials, CredentialsError> {
         let Ok(credentials_path) = env::var("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") else {
             return Err(CredentialsError::NotContainer);
         };
